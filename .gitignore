@@ -1,0 +1,8 @@
+$ git status
+
+.idea/
+.vs/
+.vscode/
+__pycache__/
+TorchEnv/
+test.html
