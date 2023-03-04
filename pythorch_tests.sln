@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "pythorch_tests", "pythorch_tests\pythorch_tests.pyproj", "{9EE14EF4-EB82-4621-8FB1-A66CD77171EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9EE14EF4-EB82-4621-8FB1-A66CD77171EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EE14EF4-EB82-4621-8FB1-A66CD77171EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5217A3D6-3F04-4666-9D41-126DCC59D58B}
+	EndGlobalSection
+EndGlobal
