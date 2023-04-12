@@ -483,7 +483,7 @@ model_1 = LinearRegrassionModelV2()
 #print(model_1, model_1.state_dict())
 # new instance of lineral regrasion
 
-#pytorch_save_and_load_test.save(model_1)
+pytorch_save_and_load_test.save(model_1)
 
 loaded_model_1 = LinearRegrassionModelV2()
 loaded_model_1.load_state_dict(torch.load(f=model_1.path))
@@ -500,20 +500,6 @@ with torch.inference_mode():
 print(loaded_model_1_preds)
 print(y_preds)
 print(loaded_model_preds == loaded_model_1_preds)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
