@@ -7,7 +7,7 @@ import torch
 MODEL_PATH = Path("models")
 MODEL_PATH.mkdir(parents=True, exist_ok=True)
 # create model save path
-MODEL_NAME = "01_pythorch_model_1.pth"
+MODEL_NAME = "01_pytorch_model_0.pth"
 MODEL_SAVING_PATH = (f"{MODEL_PATH}/{MODEL_NAME}")
 
 def save(model):    

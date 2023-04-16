@@ -12,7 +12,7 @@ start_time = time.time()
 # print(f"Using : {device}")
 
 weight = 0.967 
-bias = 0.3
+bias = 0.7
 
 start = 0
 end = 1
@@ -62,7 +62,7 @@ class LinearRegrationModelV2(nn.Module):
         super().__init__()
         self.lineral_layer = nn.Linear(in_features=1, 
                                        out_features=1)
-        self.path = 'models/01_pythorch_model_1.pth'
+        self.path = 'models/01_pytorch_model_1.pth'
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
           return self.lineral_layer(x)
@@ -123,7 +123,7 @@ loaded_model_1.eval()
 with torch.inference_mode():
 	loaded_model_1_preds = loaded_model_1(X_test)
 
-# plot_predictions(predictions=loaded_model_1_preds.cpu())
+plot_predictions(predictions=loaded_model_1_preds.cpu())
 
 
 

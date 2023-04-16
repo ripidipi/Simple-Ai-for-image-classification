@@ -294,7 +294,7 @@ class LinearRegressionModel(nn.Module): #<- everything in pytorch
 		self.bias = nn.Parameter(torch.randn(1,
 												requires_grad=True,
 												dtype=torch.float))
-		self.path = 'models/01_pythorch_model_0.pth' 
+		self.path = 'models/01_pytorch_model_0.pth' 
 
 	#forward method to define the computation in the model
 	def forward(self, x: torch.Tensor) -> torch.Tensor: 
@@ -445,7 +445,7 @@ Saving and loading model in PyTorch
 
 ### Saving a model from pytorch 
 
-#pytorch_save_and_load_test.save(model_0)
+pytorch_save_and_load_test.save(model_0)
 
 ### Load a model to pytorch
 # since we saved our model's "state_dict()" rether the entire model, we'll create a new 
@@ -471,7 +471,7 @@ class LinearRegrassionModelV2(nn.Module):
 		# Use nn.Leanear() for creating the model parameters
 		self.linear_layer = nn.Linear(in_features=1,
 										out_features=1)
-		self.path = 'models/01_pythorch_model_1.pth'
+		self.path = 'models/01_pytorch_model_1.pth'
 
 	def forward(self, x: torch.Tensor):
 		return self.linear_layer(x)

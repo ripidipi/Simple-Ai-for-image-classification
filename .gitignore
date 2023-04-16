@@ -1,8 +1,7 @@
 $ git status
-
+pythorch_tests.sln
 .idea/
 .vs/
 .vscode/
 __pycache__/
 TorchEnv/
-
