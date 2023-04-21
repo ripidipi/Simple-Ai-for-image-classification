@@ -433,7 +433,7 @@ def making_plot_after_lossfn(epochs, loss_val, test_loss_val):
 	plt.show()
 
 
-#making_plot_after_lossfn(epoch_count, loss_value, test_loss_values)
+making_plot_after_lossfn(epoch_count, loss_value, test_loss_values)
 
 """
 Saving and loading model in PyTorch

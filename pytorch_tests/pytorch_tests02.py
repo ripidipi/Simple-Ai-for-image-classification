@@ -42,6 +42,10 @@ def circl_plot(x_coord=x[:, 0],
     plt.legend(prop={'size': 10});
     plt.show()
 
+def plot(x: torch.Tensor) -> None:
+    plt.plot(x)
+    plt.show()
+
 # circl_plot()
 
 # turn data into tensors
@@ -76,8 +80,21 @@ class CircleModelV1(nn.Module):
         return self.layer_3(self.layer_2(self.layer_1(x)))
 
 
+class CircleModelV2(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.layer_1 = nn.Linear(in_features=2, out_features=16)
+        self.layer_2 = nn.Linear(in_features=16, out_features=16)
+        self.layer_3 = nn.Linear(in_features=16, out_features=1)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        return self.layer_3(self.relu(self.layer_2(self.relu(self.layer_1(x)))))
+
 model_0 = CircleModelV0().to(device)
 model_1 = CircleModelV1().to(device)
+model_2 = CircleModelV2().to(device)
+
 # model_0 = nn.Sequential(
 #     nn.Linear(in_features=2, out_features=5),
 #     nn.Linear(in_features=5, out_features=1)   
@@ -89,6 +106,7 @@ model_1 = CircleModelV1().to(device)
 # print(untrained_preds[:10])
 # print(y_test[:10])
 
+
 loss_fn = nn.BCEWithLogitsLoss()
 
 optimizer_0 = torch.optim.SGD(params=model_0.parameters(),
@@ -96,6 +114,9 @@ optimizer_0 = torch.optim.SGD(params=model_0.parameters(),
 
 optimizer_1 = torch.optim.SGD(params=model_1.parameters(),
                             lr=0.01)
+
+optimizer_2 = torch.optim.SGD(params=model_2.parameters(),
+                            lr=0.07)
 
 def accuracy_fn(y_true, y_pred):
     correct = torch.eq(y_true, y_pred).sum().item()
@@ -114,16 +135,16 @@ def accuracy_fn(y_true, y_pred):
 
 #print(y_pred.squeeze())
 
-epochs = 1
+epochs = 2000
 
 X_train, y_train = X_train.to(device), y_train.to(device)
 X_test, y_test = X_test.to(device), y_test.to(device)
 
 for epoch in range(epochs):
 
-    model_1.train()
+    model_2.train()
 
-    y_logits = model_1(X_train).squeeze()
+    y_logits = model_2(X_train).squeeze()
     y_pred = torch.round(torch.sigmoid(y_logits))
 
     loss = loss_fn(y_logits,
@@ -132,18 +153,18 @@ for epoch in range(epochs):
     acc = accuracy_fn(y_true=y_train,
                       y_pred=y_pred )
     
-    optimizer_1.zero_grad()
+    optimizer_2.zero_grad()
     # optimizer_0.zero_grad()
 
     loss.backward()
 
     # optimizer_0.step()
-    optimizer_1.step()
+    optimizer_2.step()
 
-    model_1.eval()
+    model_2.eval()
     # model_0.eval()
     with torch.inference_mode():
-        test_logits = model_1(X_test).squeeze()
+        test_logits = model_2(X_test).squeeze()
         test_pred = torch.round(torch.sigmoid(test_logits))
 
         test_loss = loss_fn(test_logits,
@@ -167,8 +188,8 @@ def plot_pred(model):
     plt.show()
 
 
-#print(f'acc: {acc:.2f}')
-#plot_pred(model_1)
+print(f'acc: {acc:.2f}')
+plot_pred(model_2)
 
 
 
@@ -192,7 +213,7 @@ model_2 = nn.Sequential(
 ).to(device)
 
 # Set the number of epochs
-epochs = 1000
+epochs = 1
 
 # Put data to target device
 X_train_regression, y_train_regression = X_train_reg.to(device), y_train_reg.to(device)
@@ -220,9 +241,64 @@ for epoch in range(epochs):
       test_pred = model_2(X_test_regression)
        
       test_loss = loss_fn(test_pred, y_test_regression)
+     
+    # if epoch % 100 == 0: 
+    #     print(f"Epoch: {epoch} | Train loss: {loss:.5f}, Test loss: {test_loss:.5f}")
 
-    if epoch % 100 == 0: 
-        print(f"Epoch: {epoch} | Train loss: {loss:.5f}, Test loss: {test_loss:.5f}")
+
+
+# def plot_predictions(train_data=X_train,
+# 					train_lables=y_train,
+# 					test_data=X_test,
+# 					test_lables=y_test,
+# 					predictions=None):
+
+	
+# 	#Plot training data, test data and compares prediction
+	
+# 	plt.figure(figsize=(10, 7))
+# 	#scatter - разброс
+# 	#plot training data in blue
+# 	plt.scatter(train_data, train_lables, c="b", s=4, label='training data')
+# 	#plot testing data in red
+# 	plt.scatter(test_data, test_lables, c="r", s=4, label='tasting data')
+	
+# 	#are there predictions?
+# 	if predictions is not None:
+# 		#if predictions is exist plot it 
+# 		plt.scatter(test_data, predictions, c="g", s=5, label='Predictions')
+
+# 	plt.legend(prop={'size': 10});
+# 	plt.show()
+
+# plot_predictions()
+
+a = torch.arange(-10, 10, 1., dtype=torch.float32).unsqueeze(dim=1)
+
+def sigmoid(x) -> torch.Tensor:
+    return 1 / (1 + np.exp(-x))
+
+plot(sigmoid(a))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 print(time.time() - start_time)
+
