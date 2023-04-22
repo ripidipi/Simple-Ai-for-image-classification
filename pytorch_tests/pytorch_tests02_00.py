@@ -20,10 +20,10 @@ print(device)
 
 """ Classification """
 
-n_samples = 1500
+n_samples = 1000
 
 x, y = make_circles(n_samples, 
-                    noise=0.03,)
+                    noise=0.05,)
 
 # print(x)
 # print('x:\n', x[:5], '\ny:\n', y[:5])
@@ -273,12 +273,12 @@ for epoch in range(epochs):
 
 # plot_predictions()
 
-a = torch.arange(-10, 10, 1., dtype=torch.float32).unsqueeze(dim=1)
+# a = torch.arange(-10, 10, 1., dtype=torch.float32).unsqueeze(dim=1)
 
-def sigmoid(x) -> torch.Tensor:
-    return 1 / (1 + np.exp(-x))
+# def sigmoid(x) -> torch.Tensor:
+#     return 1 / (1 + np.exp(-x))
 
-plot(sigmoid(a))
+# plot(sigmoid(a))
 
 
 
