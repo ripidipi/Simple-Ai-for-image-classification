@@ -1,5 +1,3 @@
-import time 
-start_time = time.time()
 import torch
 import numpy as np
 import pandas as pd
@@ -13,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from pathlib import Path
 from torch import nn
 import sys
-
+from torchmetrics import Accuracy
 
 NUM_CLASSES = 4
 NUM_FEATURES = 2
@@ -23,10 +21,10 @@ print(device)
 
 # 1. creat multi_class data
 
-X_blob, y_blob = make_blobs(n_samples=1500,
+X_blob, y_blob = make_blobs(n_samples=2000,
                             n_features=NUM_FEATURES,
                             centers=NUM_CLASSES,
-                            cluster_std=1.3)
+                            cluster_std=1.4)
 
 # 2. turn data into torch tensor
 
@@ -94,7 +92,7 @@ y_pred = torch.argmax(y_pred_probs, dim=1)
 
 # print(y_pred)
 
-epochs = 500
+epochs = 400
 
 for epoch in range(epochs):
 
@@ -135,4 +133,10 @@ def plot_predictions(model) -> None:
     plot_decision_boundary(model, X_blob_test, y_blob_test)
     plt.show()
 
+torch_metrics_acc = Accuracy(task='multiclass', num_classes=NUM_CLASSES).to(device)
+
+print(torch_metrics_acc(test_preds, y_blob_test))
+
+
+print(test_acc)
 plot_predictions(model_3)
