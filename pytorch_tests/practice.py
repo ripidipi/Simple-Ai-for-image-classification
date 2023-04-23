@@ -35,7 +35,7 @@ X_test, y_test = X_test.to(device), y_test.to(device)
 def Tanh(x) -> torch.Tensor:
     return np.sinh(x) * np.cosh(x)
 
-class Net(nn.Module):
+class NetBin(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.layers = nn.Sequential(
@@ -49,7 +49,7 @@ class Net(nn.Module):
     def forward(self, x):
         return self.layers(x)
     
-model = Net().to(device)
+model = NetBin().to(device)
 
 def accuracy_fn(y_true, y_pred):
     correct = torch.eq(y_true, y_pred).sum().item()
@@ -109,15 +109,132 @@ def plot_pred(model):
     plot_decision_boundary(model, X_test, y_test)
     plt.show()
 
+print(test_acc)
 plot_pred(model)
 
 def plot(x: torch.Tensor) -> None:
-    plt.plot(x)
-    plt.show()
+     plt.plot(x)
+     plt.show()
 
-def Tanh(x) -> torch.Tensor:
-    return np.sinh(x) * np.cosh(x)
+# def Tanh(x) -> torch.Tensor:
+#     return np.sinh(x) * np.cosh(x)
 
 # A = torch.arange(-10, 10, 1., dtype=torch.float32).unsqueeze(dim=1)
 
-# plot(Tanh(A))
+# b = nn.Tanh()
+
+# plot(b(A))
+
+NUM_CLASSES = 5
+NUM_FEATURES = 2
+NUM_HIDENS = 16
+
+N = 100 # number of points per class
+D = 2 # dimensionality
+K = NUM_CLASSES # number of classes
+X = np.zeros((N*K,D)) # data matrix (each row = single example)
+y = np.zeros(N*K, dtype='uint8') # class labels
+for j in range(K):
+  ix = range(N*j,N*(j+1))
+  r = np.linspace(0.0,1,N) # radius
+  t = np.linspace(j*4,(j+1)*4,N) + np.random.randn(N)*0.2 # theta
+  X[ix] = np.c_[r*np.sin(t), r*np.cos(t)]
+  y[ix] = j
+
+def plot_spiral() -> None:
+    plt.scatter(X[:, 0], X[:, 1], c=y, s=40, cmap=plt.cm.RdYlBu)
+    plt.show()
+
+# plot_spiral()
+
+X_spiral = torch.from_numpy(X).type(torch.float32)
+y_spiral = torch.from_numpy(y).type(torch.LongTensor)
+
+X_spiral_train, X_spiral_test, y_spiral_train, y_spiral_test = train_test_split(X_spiral,
+                                                                                y_spiral,
+                                                                                test_size=0.4)
+
+X_spiral_train, y_spiral_train = X_spiral_train.to(device), y_spiral_train.to(device)
+X_spiral_test, y_spiral_test = X_spiral_test.to(device), y_spiral_test.to(device)
+
+
+class NetMulti(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(in_features=NUM_FEATURES, out_features=NUM_HIDENS),
+            nn.Tanh(),
+            nn.Linear(in_features=NUM_HIDENS, out_features=NUM_HIDENS),
+            nn.ReLU(),
+            nn.Linear(in_features=NUM_HIDENS, out_features=NUM_HIDENS),
+            nn.Tanh(),
+            nn.Linear(in_features=NUM_HIDENS, out_features=NUM_CLASSES),
+        )
+    
+    def forward(self, x):
+        return self.layers(x)
+    
+modelM = NetMulti().to(device)
+
+loss_fn = nn.CrossEntropyLoss()
+
+optimizer = torch.optim.Adam(modelM.parameters(), 
+                            lr=0.008)
+
+acc_fn = Accuracy(task='multiclass', num_classes=NUM_CLASSES).to(device)
+
+epochs = 1000
+
+for epoch in range(epochs):
+    
+    modelM.train()
+
+    y_logits = modelM(X_spiral_train)
+    y_pred = torch.softmax(y_logits, dim=1).argmax(dim=1)
+
+    loss = loss_fn(y_logits, 
+                   y_spiral_train)
+    
+    acc = acc_fn(y_pred, 
+                 y_spiral_train)
+
+    optimizer.zero_grad()
+
+    loss.backward()
+
+    optimizer.step()
+
+    model.eval()
+
+    with torch.inference_mode():
+        test_logits = modelM(X_spiral_test)
+        test_preds = torch.softmax(test_logits, dim=1).argmax(dim=1)
+
+        test_loss = loss_fn(test_logits, y_spiral_test)
+
+        test_acc = acc_fn(test_preds,
+                           y_spiral_test)
+        
+
+def plot_predictions(model) -> None:
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.title('Train')
+    plot_decision_boundary(model, X_spiral_train, y_spiral_train)
+    plt.subplot(1, 2, 2)
+    plt.title('Test')
+    plot_decision_boundary(model, X_spiral_test, y_spiral_test)
+    plt.show()
+
+print(test_acc)
+plot_predictions(modelM)
+
+    
+
+
+
+
+
+
+
+
