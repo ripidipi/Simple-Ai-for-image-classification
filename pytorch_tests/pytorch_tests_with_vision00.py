@@ -135,7 +135,7 @@ def print_train_time(start: float,
 
 start_time = timer()
 
-epochs = 3
+epochs = 1
 
 for epoch in tqdm(range(epochs)):
     
@@ -187,3 +187,42 @@ print(f'train loss: {train_loss:.3f} \ntest loss: {test_loss:.3f} \n test acc: {
 
 end_time = timer()
 print_train_time(start=start_time, end=end_time, device=device)
+
+
+
+def eval_model(model: torch.nn.Module,
+               data_loader: torch.utils.data.DataLoader,
+               loss_fn: torch.nn.Module,
+               accuracy_fn):
+    loss, acc = 0, 0
+    model.eval()
+    with torch.inference_mode():
+        for img, label in data_loader:
+            y_pred = model(img)
+
+            loss += loss_fn(y_pred, label)
+            acc += accuracy_fn(y_pred = y_pred.argmax(dim=1),
+                               y_true = label)
+            
+        loss /= len(data_loader)
+        acc /= len(data_loader)
+
+    return {'model name:': model.__class__.__name__, 
+            'model_loss': loss.item(),
+            'model acc': acc}
+
+
+model_0_res = eval_model(model=model_0,
+                         data_loader=test_dataloader,
+                         loss_fn=loss_fn,
+                         accuracy_fn=accuracy_fn,
+                         )
+
+
+print(model_0_res)
+
+
+
+
+
+
