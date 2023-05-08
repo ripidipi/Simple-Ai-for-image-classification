@@ -14,9 +14,7 @@ from tqdm.auto import tqdm
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# device = 'cpu'
 print(device)
-
 
 BATCH_SIZE = 32
 
@@ -46,45 +44,6 @@ test_dataloader = DataLoader(dataset = test_data,
 
 train_features_batch, train_labels_batch  = next(iter(train_dataloader))
 class_names = train_data.classes
-# print(train_data, test_data)
-
-# img = train_data[0][0]
-# label = train_data[0][1]
-# print(f"Image:\n {img}") 
-# print(f"Label:\n {label}")
-
-
-def plot_data0() -> None:
-    
-    fig = plt.figure(figsize=(9, 9))
-    rows, cols = 4, 4
-
-    for i in range(1, rows*cols+1):
-        random_ind = torch.randint(0, len(train_data), size=[1]).item()
-        img, label = train_data[random_ind]
-        fig.add_subplot(rows, cols, i)
-        plt.imshow(img.squeeze(), cmap='gray')
-        plt.title(class_names[label])
-        plt.axis('off')
-        plt.xlabel(False)
-
-    plt.show()
-    
-# plot_data0()
-
-def plot_data1 ():
-
-    random_ind = torch.randint(0, len(train_features_batch), size=[1]).item()
-    img, labels = train_features_batch[random_ind], train_labels_batch[random_ind]
-    plt.imshow(img.squeeze(), cmap='gray')
-    plt.title(class_names[labels])
-    plt.axis('off')
-    plt.xlabel(False)
-
-    plt.show()
-
-# plot_data1()
-
 
 flatten_model = nn.Flatten()
 
@@ -92,11 +51,7 @@ x = train_features_batch[0]
 
 output = flatten_model(x)
 
-# print(f'Shape befor: {x.shape}')
-# print(f'Shape after: {output.shape}')
-
-
-class FashionMNISTModelV0(nn.Module):
+class FashionMNISTModelV1(nn.Module):
     def __init__(self,
                  input_shape: int,
                  hidden_units: int,
@@ -115,20 +70,19 @@ class FashionMNISTModelV0(nn.Module):
     def forward(self, x):
         return self.layer_stack(x)
     
-model_0 = FashionMNISTModelV0(
+
+model_0 = FashionMNISTModelV1(
     input_shape=784,
     hidden_units=10,
     output_shape=len(class_names),
 ).to(device)
 
-# dummy_x = torch.rand(1, 1, 28, 28).to(device)
-
-# print(model_0(dummy_x).shape)
-
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(params=model_0.parameters(),
                             lr=0.1)
- 
+
+accuracy_fn = accuracy_fn
+
 def print_train_time(start: float, 
                      end: float,
                      device: torch.device = None ):
@@ -136,27 +90,34 @@ def print_train_time(start: float,
     print(f'Train time on {device} :  {total_time:.5f} seconds')
     return total_time
 
-start_time = timer()
 
-epochs = 5
+def train_step(model: torch.nn.Module,
+               data_loader: torch.utils.data.DataLoader,
+               loss_fn: torch.nn.Module,
+               optimizer: torch.optim.Optimizer,
+               accuracy_fn,
+               device: torch.device = device):
+    """ Performs a training with model trying to learn on data_loader. """
+    train_loss, train_acc = 0, 0
 
-for epoch in tqdm(range(epochs)):
-    
-    train_loss = 0
+    model.train()
 
-    for batch, (img, label) in enumerate(train_dataloader):
+    for batch, (img_train, label) in enumerate(data_loader):
         
-        img, label = img.to(device), label.to(device)
+        img_train, label = img_train.to(device), label.to(device)
 
-        model_0.eval()
+        model.eval()
 
         # forward pass
-        y_pred = model_0(img)
+        y_pred = model(img_train)
 
         # loss calculation
         loss = loss_fn(y_pred, label)
         train_loss += loss
 
+        train_acc += accuracy_fn(y_true=label,
+                                 y_pred=y_pred.argmax(dim=1))
+    
         # zero grad
         optimizer.zero_grad()
 
@@ -166,73 +127,61 @@ for epoch in tqdm(range(epochs)):
         # optimizer
         optimizer.step()
 
-        if batch % 400 == 0:
-            print(f'looked {batch * len(img)} / {len(train_dataloader.dataset)}')
     
-    # divide total train loss by length of train dataloader
     train_loss /= len(train_dataloader)
-    test_acc, test_loss = 0, 0
-    model_0.eval()
+    train_acc /= len(train_dataloader)
+    print(f' Train loss: {train_loss:.4f} \nTrain accuracy: {train_acc:.2f}')
+
+
+def test_step(model: torch.nn.Module,
+              data_loader: torch.utils.data.DataLoader,
+              loss_fn: torch.nn.Module,
+              accuracy_fn,
+              device: torch.device = device):
+    """ Performs a testing loop step on model going over data_loader. """
+
+    test_loss, test_acc = 0, 0
+    
+    model.eval()
+
     with torch.inference_mode():
-        for img_test, lable_test in test_dataloader:
+        for img_test, lable_test in data_loader:
             
             img_test, lable_test = img_test.to(device), lable_test.to(device)
 
-            test_pred = model_0(img_test)
+            test_pred = model(img_test)
             test_loss += loss_fn(test_pred, lable_test)
             test_acc += accuracy_fn(y_true=lable_test, y_pred=test_pred.argmax(dim=1))
 
         test_loss /= len(test_dataloader)
-
         test_acc  /= len(test_dataloader)
+        
+        print(f'Test loss: {test_loss:.4f} \nTest accuracy: {test_acc:.2f}')
 
 
-print(f'train loss: {train_loss:.3f} \ntest loss: {test_loss:.3f} \n test acc: {test_acc:.3f}')
+
+start_time = timer()
+
+epochs = 10
+
+for epoch in tqdm(range(epochs)):
+    
+    train_step(model=model_0,
+               data_loader=train_dataloader,
+               loss_fn=loss_fn,
+               optimizer=optimizer,
+               accuracy_fn=accuracy_fn,
+               )
+    
+    test_step(model=model_0,
+              data_loader=test_dataloader,
+              loss_fn=loss_fn,
+              accuracy_fn=accuracy_fn,
+              )
+
 
 
 
 
 end_time = timer()
-print_train_time(start=start_time, end=end_time, device=device)
-
-
-
-def eval_model(model: torch.nn.Module,
-               data_loader: torch.utils.data.DataLoader,
-               loss_fn: torch.nn.Module,
-               accuracy_fn):
-    loss, acc = 0, 0
-    model.eval()
-    with torch.inference_mode():
-        for img, label in data_loader:
-
-            img, label = img.to(device), label.to(device)
-
-            y_pred = model(img)
-
-            loss += loss_fn(y_pred, label)
-            acc += accuracy_fn(y_pred = y_pred.argmax(dim=1),
-                               y_true = label)
-            
-        loss /= len(data_loader)
-        acc /= len(data_loader)
-
-    return {'model name:': model.__class__.__name__, 
-            'model_loss': loss.item(),
-            'model acc': acc}
-
-
-model_0_res = eval_model(model=model_0,
-                         data_loader=test_dataloader,
-                         loss_fn=loss_fn,
-                         accuracy_fn=accuracy_fn,
-                         )
-
-
-print(model_0_res)
-
-
-
-
-
-
+print_train_time(start=start_time, end=end_time, device=device)            
