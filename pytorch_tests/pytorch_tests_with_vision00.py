@@ -72,8 +72,7 @@ def plot_data0() -> None:
     
 # plot_data0()
 
-def plot_data1 ():
-
+def plot_data1():
     random_ind = torch.randint(0, len(train_features_batch), size=[1]).item()
     img, labels = train_features_batch[random_ind], train_labels_batch[random_ind]
     plt.imshow(img.squeeze(), cmap='gray')

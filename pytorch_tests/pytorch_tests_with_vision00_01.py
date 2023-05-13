@@ -14,7 +14,7 @@ from tqdm.auto import tqdm
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print(device)
+# print(device)
 
 BATCH_SIZE = 32
 
@@ -162,7 +162,7 @@ def test_step(model: torch.nn.Module,
 
 start_time = timer()
 
-epochs = 3
+epochs = 0
 
 for epoch in tqdm(range(epochs)):
     
@@ -184,7 +184,7 @@ for epoch in tqdm(range(epochs)):
 
 
 end_time = timer()
-print_train_time(start=start_time, end=end_time, device=device) 
+# print_train_time(start=start_time, end=end_time, device=device) 
 
 
 
@@ -214,11 +214,11 @@ def eval_model(model: torch.nn.Module,
             'model acc': acc}
 
 
-model_0_res = eval_model(model=model_0,
-                         data_loader=test_dataloader,
-                         loss_fn=loss_fn,
-                         accuracy_fn=accuracy_fn,
-                         )
+# model_0_res = eval_model(model=model_0,
+#                          data_loader=test_dataloader,
+#                          loss_fn=loss_fn,
+#                          accuracy_fn=accuracy_fn,
+#                          )
 
 
-print(model_0_res)
+# print(model_0_res)
