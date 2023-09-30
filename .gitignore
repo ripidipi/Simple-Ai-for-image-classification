@@ -5,3 +5,4 @@ pythorch_tests.sln
 .vscode/
 __pycache__/
 TorchEnv/
+data/

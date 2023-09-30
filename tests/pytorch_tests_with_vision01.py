@@ -103,37 +103,37 @@ optimizer = torch.optim.SGD(params=model.parameters(),
 
 start_time = timer()
 
-# epochs = 15
+epochs = 20
 
-# for epoch in tqdm(range(epochs)):
+for epoch in tqdm(range(epochs)):
     
-#     train_step(model=model,
-#                data_loader=train_dataloader,
-#                loss_fn=loss_fn,
-#                optimizer=optimizer,
-#                accuracy_fn=accuracy_fn,
-#                )
+    train_step(model=model,
+               data_loader=train_dataloader,
+               loss_fn=loss_fn,
+               optimizer=optimizer,
+               accuracy_fn=accuracy_fn,
+               )
     
-#     test_step(model=model,
-#               data_loader=test_dataloader,
-#               loss_fn=loss_fn,
-#               accuracy_fn=accuracy_fn,
-#               )
+    test_step(model=model,
+              data_loader=test_dataloader,
+              loss_fn=loss_fn,
+              accuracy_fn=accuracy_fn,
+              )
 
 
-# end_time = timer()
-# print_train_time(start=start_time, end=end_time, device=device) 
+end_time = timer()
+print_train_time(start=start_time, end=end_time, device=device) 
 
 
-# model_res = eval_model(model=model,
-#                          data_loader=test_dataloader,
-#                          loss_fn=loss_fn,
-#                          accuracy_fn=accuracy_fn,
-#                          )
+model_res = eval_model(model=model,
+                         data_loader=test_dataloader,
+                         loss_fn=loss_fn,
+                         accuracy_fn=accuracy_fn,
+                         )
 
-# print(model_res)
+print(model_res)
 
-# save(model)
+save(model)
 trained_model = FashionMNISTModelV2(input_shape=1,
                             output_shape=10,
                             hidden_units=128,).to(device)
@@ -201,20 +201,6 @@ preb_probs = make_predictions(model=trained_model,
 
 pred_classes = preb_probs.argmax(dim=1)
 
-print(pred_classes)
+# print(pred_classes)
 
 plot_data(test_samples, pred_classes, test_labels)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
