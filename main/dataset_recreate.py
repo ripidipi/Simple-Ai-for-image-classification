@@ -29,7 +29,8 @@ def get_subset(image_path=data_path,
         lable_splits[data_split] = image_paths
     return lable_splits
 
-lable_splits = get_subset()
+lable_splits = get_subset(data_splits=["quick_test"], amount=0.05)
+# lable_splits = get_subset(amount=0.7)
 # print(lable_splits["train"][:10])
         
 target_dir_name = data_dir / "food60"

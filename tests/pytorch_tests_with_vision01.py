@@ -98,12 +98,12 @@ rand_image_tensor = torch.randn(size=(1, 28, 28)).to(device)
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(params=model.parameters(),
-                            lr=0.01)
+                            lr=0.001)
 
 
 start_time = timer()
 
-epochs = 20
+epochs = 0
 
 for epoch in tqdm(range(epochs)):
     
@@ -133,7 +133,7 @@ model_res = eval_model(model=model,
 
 print(model_res)
 
-save(model)
+# save(model)
 trained_model = FashionMNISTModelV2(input_shape=1,
                             output_shape=10,
                             hidden_units=128,).to(device)
@@ -173,6 +173,7 @@ test_labels = []
 for sample, label in random.sample(list(test_data), k=9):
     test_samples.append(sample)
     test_labels.append(label)
+
 
 
 def plot_data(sample, labels, right_labels):

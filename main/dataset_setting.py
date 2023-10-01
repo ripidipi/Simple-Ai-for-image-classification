@@ -11,10 +11,6 @@ import os
 from typing import Dict, List, Tuple
 from torch.utils.data import Dataset
 import pathlib
-import multiprocessing
-
-if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn')
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f"Using : {device}")
@@ -24,8 +20,9 @@ image_path = data_path / "food60"
 
 train_dir = image_path / "train"
 test_dir = image_path / "test"
+quick_test_dir = image_path / "quick_test"
 
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 def plot_transformed_images(image_paths, transform, n=3):
     "Plots a series of random images from image_paths."
@@ -62,11 +59,11 @@ class ImageCustomDataset(Dataset):
     "Main class of Image data"
     def __init__(self, 
                 targ_dir:str,
-                tranform=None) -> None:
+                transform=None) -> None:
         "Params initialization"
         super().__init__()
         self.paths = list(pathlib.Path(targ_dir).glob("*/*.jpg"))
-        self.transform = tranform
+        self.transform = transform
         self.classes, self.classes_ind = find_class(targ_dir)
         
 
@@ -90,68 +87,48 @@ class ImageCustomDataset(Dataset):
         else:
              return img, class_ind
         
-    # def plot_image(self, ind) -> None:
-    #     "Plot one image by index"
-
-# display_random_image(train_data_custom, n = 10, classes=train_data_custom.classes, )
-
-
-# train_transform = transforms.Compose([
-#                                         transforms.Resize(size=(64, 64)),
-#                                         transforms.RandomHorizontalFlip(p=0.5),
-#                                         transforms.ToTensor()    
-# ])
-
-# test_transform = transforms.Compose([
-#                                         transforms.Resize(size=(64, 64)),
-#                                         transforms.ToTensor()
-# ])
 
 train_transform = transforms.Compose([
-        transforms.Resize(size=(64, 64)),
-        transforms.TrivialAugmentWide(num_magnitude_bins=31),
-        transforms.AugMix(),
-        transforms.ToTensor()
+    transforms.Resize((224, 224)),
+    transforms.RandomHorizontalFlip(p=0.3),
+    transforms.RandomVerticalFlip(p=0.3),
+    # transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
+    transforms.RandomRotation(degrees=(30, 70)),
+    transforms.ToTensor(),
 ])
 
 test_transform = transforms.Compose([
-        transforms.Resize(size=(64, 64)),
+        transforms.Resize(size=(224, 224)),
         transforms.ToTensor()
 ])
 
 
+
 train_data_custom = ImageCustomDataset(targ_dir=train_dir,
-                                       tranform=train_transform)
+                                       transform=train_transform)
 
 test_data_custom = ImageCustomDataset(targ_dir=test_dir,
-                                      tranform=test_transform)
+                                      transform=test_transform)
+
+quick_test_data = ImageCustomDataset(targ_dir=quick_test_dir,
+                                    transform=test_transform)
 
 class_names = train_data_custom.classes
 
-
-train_data = datasets.ImageFolder(root=train_dir,
-                                  transform=train_transform,
-                                  target_transform=None)
-
-test_data = datasets.ImageFolder(root=test_dir,
-                                transform=test_transform)
-# plot_transformed_images(image_paths=train_data_custom.paths,
-#                         transform=train_transform,
-#                         n = 3)
-
-NUM_WORKERS = os.cpu_count()
-
-train_dataloader_custom = DataLoader(dataset=train_data,
+train_dataloader_custom = DataLoader(dataset=train_data_custom,
                                      batch_size=BATCH_SIZE,
-                                     num_workers=NUM_WORKERS,
                                      shuffle=True,
+                                     pin_memory=True,
                                      )
 
-test_dataloader_custom = DataLoader(dataset=test_data,
+test_dataloader_custom = DataLoader(dataset=test_data_custom,
                                     batch_size=BATCH_SIZE,
-                                    num_workers=NUM_WORKERS,
                                     shuffle=False,
+                                    pin_memory=True,
                                     )
 
-    # image_custom, lable_custom = next(iter(train_dataloader_custom))
-    # print(image_custom, lable_custom)
+quick_test_dataloader = DataLoader(dataset=quick_test_data,
+                                    batch_size=BATCH_SIZE,
+                                    shuffle=False,
+                                    pin_memory=True,
+                                    )

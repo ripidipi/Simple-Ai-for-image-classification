@@ -13,7 +13,7 @@ from timeit import default_timer as timer
 from tqdm.auto import tqdm
 
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = 'cpu' if torch.cuda.is_available() else 'cpu'
 # device = 'cpu'
 print(device)
 
@@ -137,7 +137,10 @@ def print_train_time(start: float,
 
 start_time = timer()
 
-epochs = 5
+epochs = 1
+
+loss_count_tr = []
+loss_count_te = []
 
 for epoch in tqdm(range(epochs)):
     
@@ -184,8 +187,8 @@ for epoch in tqdm(range(epochs)):
         test_loss /= len(test_dataloader)
 
         test_acc  /= len(test_dataloader)
-
-
+    loss_count_tr.append(train_loss)
+    loss_count_te.append(test_loss)
 print(f'train loss: {train_loss:.3f} \ntest loss: {test_loss:.3f} \n test acc: {test_acc:.3f}')
 
 
@@ -228,8 +231,29 @@ model_0_res = eval_model(model=model_0,
                          )
 
 
-print(model_0_res)
+def plot_loss():
+    c = 0
 
+    plt.subplot(1, 2, 1)
+    plt.plot(c, loss_count_tr.numpy(), label='train_loss')
+    plt.plot(c, loss_count_te.numpy(), label='test_loss')
+    plt.title('Loss')
+    plt.xlabel('Epochs')
+    plt.legend()
+
+    # Plot accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(c, loss_count_tr.numpy(), label='train_accuracy')
+    plt.plot(c, loss_count_te.numpy(), label='test_accuracy')
+    plt.title('Accuracy')
+    plt.xlabel('Epochs')
+    plt.legend();
+    c+=1
+    plt.show()
+
+    
+# print(model_0_res)
+plot_loss()
 
 
 
